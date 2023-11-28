@@ -109,7 +109,7 @@ class SMSNotifier {
     private function get_users_detail($users) {
         global $DB;
         $sql = 'SELECT usr.id, usr.firstname, usr.lastname, usr.email, usr.phone2 AS phone
-                FROM prefix_user AS usr
+                FROM mdl_user AS usr
                 WHERE usr.id IN ('.implode(",", $users).')';
         $usersdetail = $DB->get_records_sql($sql);
         return $usersdetail;

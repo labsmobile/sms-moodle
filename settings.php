@@ -41,8 +41,7 @@ if ($ADMIN->fulltree) {
         get_string('sms_api_from', 'block_sms'),
         get_string('sms_api_from', 'block_sms'),
         '', PARAM_TEXT));
-
-        /* ========================= nexmo ======================= */
+    /* ========================= LabsMobile ======================= */
 
     $settings->add(new admin_setting_configtext("block_sms_labsmobile_username",
         get_string('sms_api_key', 'block_sms'),
