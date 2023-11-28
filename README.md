@@ -2,7 +2,7 @@
   <img src="https://avatars.githubusercontent.com/u/152215067?s=200&v=4" height="80">
 </p>
 
-# LabsMobile-Android
+# LabsMobile-Moodle
 
 ![](https://img.shields.io/badge/version-1.0.0-blue.svg)
  
@@ -26,8 +26,6 @@ Labsmobile API documentation can be found[here][apidocs].
 
 ## Installation
 
-**Place the LabsMobile SDK in the libs directory of your application module.**
-
 1. Download the Plugin corresponding to the version of your Moodle installation at the bottom of this page.
 
 2. Sign in into your Moodle installation with a user with Administrator privileges.
@@ -38,10 +36,10 @@ Labsmobile API documentation can be found[here][apidocs].
 
 5. At the end of the installation, the plugin configuration screen will be displayed. It is necessary to enter the following information:
 
-v2.X - v3.6
-- apikey: Unused field. You can leave it blank or enter any value.
-- username: Email that corresponds to the account's registration username.
-- password: API token generated from the Security and passwords option of the LabsMobile account.
+  **v2.X - v3.6**
+    - apikey: Unused field. You can leave it blank or enter any value.
+    - username: Email that corresponds to the account's registration username.
+    - password: API token generated from the Security and passwords option of the LabsMobile account.
 
 6. Go to the Home screen or the desired section of Moodle to add the SMS Notifier block.
 
