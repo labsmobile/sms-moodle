@@ -35,8 +35,7 @@ Labsmobile API documentation can be found[here][apidocs].
 - Install the Plugin with the downloaded .ZIP file following the instructions and configuring the plugin type as Blocks.
 
 - At the end of the installation, the plugin configuration screen will be displayed. It is necessary to enter the following information:
-
-*v2.X - v3.6*
+  *v2.X - v3.6*
   - apikey: Unused field. You can leave it blank or enter any value.
   - username: Email that corresponds to the account's registration username.
   - password: API token generated from the Security and passwords option of the LabsMobile account.
