@@ -1,32 +1,24 @@
-// JavaScript Document
-
 M.block_sms = {};
 M.block_sms.init = function (Y, param3) {
 
     // Variables.
     var showuser = Y.one("#btnajax");
     var sms_send = Y.one('#smssend');
-    var action = Y.one('#id_r_id');
-    var action1 = Y.one('#id_m_id');
-    var action2 = Y.one('#id_c_id');
+    var action = Y.one('#id_rid');
+    var action1 = Y.one('#id_mid');
+    var action2 = Y.one('#id_cid');
     var userlist = Y.one("#table-change");
     var img = Y.one('#load');
-
-    // Body load first time
     var msg_body = Y.one('#id_sms_body');
-
-
     var m_id = action1.get('value');
     Y.io('load_message.php?m_id=' + m_id, {
         on: {
             start: function (id, args) {
                 msg_body.hide();
                 img.show();
-
             },
             complete: function (id, e) {
                 var json = e.responseText;
-                console.log(json);
                 img.hide();
                 msg_body.show();
                 msg_body.set('value', json);
@@ -55,11 +47,7 @@ M.block_sms.init = function (Y, param3) {
                     console.log(json);
                     userlist.set('innerHTML', json);
                     sms_send.show();
-                    // daratable starts
-                    $('.display').DataTable({
-                        paging: false
-                    });
-                    // datatable ends
+                     $('.display').DataTable({ paging:false });
                 }
             }
         });

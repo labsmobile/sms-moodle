@@ -14,13 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/* SMS Notifier Block
- * SMS notification is a one way SMS messaging block that allows managers, teachers and administrators to
+/* SMS notifier Block
+ * SMS notifier is a one way SMS messaging block that allows managers, teachers and administrators to
  * send text messages to their student and teacher.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 06-Jun-2013
+ * @author: Waqas Ansari
+ * @date: 21-May-2019
 */
+/**
+ * @copyright 2019 3iLogic <info@3ilogic.com>
+ */
 
     $string['pluginname'] = 'SMS Notifier';
     $string['sms'] = 'SMS Notifier';
@@ -39,14 +42,22 @@
     $string['template'] = 'Create Message Template';
     $string['sms_template'] = 'Create Message Template';
     $string['sms_template_header'] = 'New Template';
+    $string['sms_twilio_accountsid'] = 'Account SID';
+    $string['sms_twilio_auth_token'] = 'Auth Token';
+    $string['sms_sendpk_username'] = 'SendPK Username';
+    $string['sms_sendpk_password'] = 'SendPK Password';
     $string['sms_api_key'] = 'API Key';
+    $string['sms_api_secret'] = 'API Secret';
     $string['sms_api_username'] = 'Username';
     $string['sms_api_password'] = 'Password';
+    $string['sms_api_from'] = 'From Number';
     $string['sms_setting_header'] = 'SMS Notification Settings';
     $string['block_sms_apikey'] = 'block_sms_apikey';
+    $string['block_sms_api_secret'] = 'block_sms_api_secret';
     $string['block_sms_api_username'] = 'block_sms_api_username';
     $string['block_sms_api_password'] = 'block_sms_api_password';
-    $string['sms:addinstance']='Add Instance';
+    $string['block_sms_api_from'] = 'block_sms_api_from';
+    $string['sms:addinstance'] = 'Add Instance';
     $string['error'] = 'Error';
     $string['sent'] = 'Sent';
     $string['valid_key'] = 'Your key IS VALID';
@@ -61,10 +72,3 @@
     $string['moodleuser'] = 'Username';
     $string['usernumber'] = 'Numbers';
     $string['status'] = 'Status';
-    
-    
-
-
-
-
-        

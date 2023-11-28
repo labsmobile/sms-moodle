@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -19,10 +18,13 @@
  * SMS notifier is a one way SMS messaging block that allows managers, teachers and administrators to
  * send text messages to their student and teacher.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 06-Jun-2013
+ * @author: Waqas Ansari
+ * @date: 21-May-2019
+*/
+/**
+ * @copyright 2019 3iLogic <info@3ilogic.com>
  */
-
+defined('MOODLE_INTERNAL') || die;
 require_once("{$CFG->libdir}/formslib.php");
 require_once("lib.php");
 require_login();
@@ -44,7 +46,10 @@ class sms_form extends moodleform {
     public function display_report() {
         global $DB, $OUTPUT, $CFG, $USER;
         $table = new html_table();
-        $table->head = array(get_string('serial_no', 'block_sms'), get_string('name', 'block_sms'), get_string('cell_no', 'block_sms'), get_string('select', 'block_sms'));
+        $table->head = array(get_string('serial_no', 'block_sms'),
+                            get_string('name', 'block_sms'),
+                            get_string('cell_no', 'block_sms'),
+                            get_string('select', 'block_sms'));
         $table->size = array('10%', '20%', '20%', '20%');
         $table->align = array('center', 'left', 'center', 'center');
         $table->width = '100%';
@@ -76,27 +81,36 @@ class sms_send extends moodleform {
 
     public function definition() {
         global $DB, $CFG;
-        $mform = & $this->_form;
+        $mform = &$this->_form;
+
         $mform->addElement('header', 'sms_send', get_string('sms_send', 'block_sms'));
-        if (isset($c_id)) {
-            $attributes = $DB->get_records_sql_menu('SELECT id , fullname FROM {course} where id = ?', array($c_id), $limitfrom = 0, $limitnum = 0);
+        if (isset($cid)) {
+            $attributes = $DB->get_records_sql_menu('SELECT id , fullname FROM {course} where id = ?',
+                array($cid), $limitfrom = 0, $limitnum = 0);
         } else {
-            $attributes = $DB->get_records_sql_menu('SELECT id , fullname FROM {course}', array($params = null), $limitfrom = 0, $limitnum = 0);
+            $attributes = $DB->get_records_sql_menu('SELECT id , fullname FROM {course}',
+                array($params = null), $limitfrom = 0, $limitnum = 0);
         }
-        $mform->addElement('select', 'c_id', get_string('selectcourse', 'block_sms'), $attributes);
-        $mform->setType('c_id', PARAM_INT);
-        if (isset($c_id)) {
-            $attributes = $DB->get_records_sql_menu('SELECT id,level_name FROM {competency_level} where id = ?', array($l_id), $limitfrom = 0, $limitnum = 0);
+        $mform->addElement('select', 'cid', get_string('selectcourse', 'block_sms'), $attributes);
+        $mform->setType('cid', PARAM_INT);
+
+        if (isset($cid)) {
+            $attributes1 = $DB->get_records_sql_menu('SELECT id,level_name FROM {competency_level} where id = ?',
+                array($lid), $limitfrom = 0, $limitnum = 0);
         } else {
             $attributes1 = array('teacher', 'student');
         }
         $attributes2 = $DB->get_records_sql_menu('SELECT id , shortname FROM {role}', null, $limitfrom = 0, $limitnum = 0);
         $attributes = array_intersect($attributes2, $attributes1);
-        $mform->addElement('select', 'r_id', get_string('selectrole', 'block_sms'), $attributes);
+        $mform->addElement('select', 'rid',
+            get_string('selectrole', 'block_sms'), $attributes);
         $attributes = $DB->get_records_sql_menu('SELECT id,tname FROM {block_sms_template}', null, $limitfrom = 0, $limitnum = 0);
-        $mform->addElement('selectwithlink', 'm_id', get_string('selectmsg', 'block_sms'), $attributes, null, array('link' => $CFG->wwwroot . '/blocks/sms/view.php?viewpage=3', 'label' => get_string('template', 'block_sms')));
+        $mform->addElement('selectwithlink', 'mid',
+            get_string('selectmsg', 'block_sms'), $attributes, null,
+            array('link' => $CFG->wwwroot . '/blocks/sms/view.php?viewpage=3', 'label' =>
+                get_string('template', 'block_sms')));
         $attributes = array('rows' => '6', 'cols' => '45', 'maxlength' => '160');
-        $mform->setType('r_id', PARAM_INT);
+        $mform->setType('rid', PARAM_INT);
         $mform->addElement('textarea', 'sms_body', get_string('sms_body', 'block_sms'), $attributes);
         $mform->addRule('sms_body', 'Please write Message', 'required', 'client');
         $mform->addRule('sms_body', $errors = null, 'required', null, 'server');
@@ -109,29 +123,29 @@ class sms_send extends moodleform {
         $mform->addElement('button', 'nextbtn', 'Show Users', array("id" => "btnajax"));
     }
 
-    public function display_report($c_id = null, $r_id = null) {
+    public function display_report($cid = null, $rid = null) {
         global $DB, $OUTPUT, $CFG, $USER;
         $table = new html_table();
-        /*      $table->attributes = array("class" => "display");
-          $table->attributes = array("name" => "userlist"); */
         $table->attributes = array("id" => "userlist", "class" => "display", "name" => "userlist");
         $table->width = '100%';
         $table->data = array();
-        if (empty($c_id)) {
-            $c_id = 1;
-            $r_id = 3;
+        if (empty($cid)) {
+            $cid = 1;
+            $rid = 3;
         }
-        $sql = "SELECT CONCAT(usr.firstname,' ', usr.lastname) AS name, usr.email,usr.phone2,c.fullname
+        $sql = "SELECT usr.id, CONCAT(usr.firstname,' ', usr.lastname ) AS name, usr.email,usr.phone2,c.fullname
             FROM {course} c
             INNER JOIN {context} cx ON c.id = cx.instanceid
-            AND cx.contextlevel = '50' and c.id=$c_id
+            AND cx.contextlevel = '50' and c.id=$cid
             INNER JOIN {role_assignments} ra ON cx.id = ra.contextid
             INNER JOIN {role} r ON ra.roleid = r.id
             INNER JOIN {user} usr ON ra.userid = usr.id
-            WHERE r.id = $r_id";
+            WHERE r.id = $rid";
         $count = $DB->record_exists_sql($sql, array($params = null));
         if ($count >= 1) {
-            $table->head = array(get_string('serial_no', 'block_sms'), get_string('name', 'block_sms'), get_string('cell_no', 'block_sms'), "<a href='javascript:setCheckboxes();' style='color:#333;' class='chkmenu'>Select all| Unselect all</a>");
+            $table->head = array(get_string('serial_no', 'block_sms'),
+                get_string('name', 'block_sms'), get_string('cell_no', 'block_sms'),
+                "<a href='javascript:setCheckboxes();' style='color:#333;' class='chkmenu'>Select all| Unselect all</a>");
             $table->size = array('10%', '20%', '20%', '20%');
             $table->align = array('center', 'left', 'center', 'center');
             $rs = $DB->get_recordset_sql($sql, array(), null, null);
@@ -141,12 +155,17 @@ class sms_send extends moodleform {
                 $row[] = ++$i;
                 $row[] = $log->name;
                 $row[] = $log->phone2;
-                $row[] = "<input style='width:20px; height:30px;' type='checkbox' class='check_list' name='user[]' value='$log->id'/>";
+                $row[] = "<input style='width:20px; height:30px;' type='checkbox' class='check_list' name='user[]'
+value='$log->id'/>";
                 $table->data[] = $row;
             }
+
         } else {
             $row = array();
-            $row[] = "<div id='load-users' style='border: 1px solid;margin: 10px 0px;padding:15px 10px 15px 50px;background-repeat: no-repeat;background-position: 10px center;color: #00529B;background-image: url(" . 'pic/info.png' . "); background-color: #BDE5F8;border-color: #3b8eb5;'>Record not Found</div>";
+            $row[] = "<div id='load-users' style='border: 1px solid;margin: 10px 0px; padding:15px 10px 15px 50px;
+            background-repeat: no-repeat;background-position: 10px center;color: #00529B;
+            background-image: url(" . 'pic/info.png' . "); background-color: #BDE5F8;
+            border-color: #3b8eb5;'>Record not Found</div>";
             $table->data[] = $row;
         }
         return $table;
@@ -158,12 +177,13 @@ class sms_send extends moodleform {
 class template_form extends moodleform {
 
     public function definition() {
-        $mform = & $this->_form;
+        $mform = &$this->_form;
         $mform->addElement('header', 'sms_template_header', get_string('sms_template_header', 'block_sms'));
         $mform->addElement('text', 'tname', 'Name:', array('size' => 44, 'maxlength' => 160));
         $mform->addRule('tname', 'Please Insert Template Name', 'required', 'client');
         $mform->setType('tname', PARAM_TEXT);
-        $mform->addElement('textarea', 'template', 'Message:', array('rows' => '6', 'cols' => '47', 'maxlength' => '160', 'id' => 'asd123'));
+        $mform->addElement('textarea', 'template', 'Message:',
+            array('rows' => '6', 'cols' => '47', 'maxlength' => '160', 'id' => 'asd123'));
         $mform->addRule('template', 'Please Insert Template Message', 'required', 'client');
         $mform->setType('template', PARAM_TEXT);
         $mform->addElement('hidden', 'viewpage', '2');
@@ -183,14 +203,17 @@ class template_form extends moodleform {
                 $errors['template'] = 'Template Name is already exists';
             }
             return $errors;
-        } else
+        } else {
             return true;
+        }
     }
 
     public function display_report() {
         global $DB, $OUTPUT, $CFG, $USER;
         $table = new html_table();
-        $table->head = array(get_string('serial_no', 'block_sms'), get_string('name', 'block_sms'), get_string('msg_body', 'block_sms'), get_string('edit', 'block_sms'), get_string('delete', 'block_sms'));
+        $table->head = array(get_string('serial_no', 'block_sms'),
+            get_string('name', 'block_sms'), get_string('msg_body', 'block_sms'),
+            get_string('edit', 'block_sms'), get_string('delete', 'block_sms'));
         $table->size = array('10%', '20%', '50%', '10%', '10%');
         $table->align = array('center', 'left', 'left', 'center', 'center');
         $table->attributes = array("class" => "display");
@@ -205,8 +228,10 @@ class template_form extends moodleform {
             $row[] = ++$i;
             $row[] = $log->tname;
             $row[] = $log->template;
-            $row[] = '<a  title="Edit" href="' . $CFG->wwwroot . '/blocks/sms/view.php?viewpage=3&edit=edit&id=' . $log->id . '"/><img src="' . $OUTPUT->pix_url('t/edit') . '" class="iconsmall" /></a> ';
-            $row[] = '<a  title="Remove" href="' . $CFG->wwwroot . '/blocks/sms/view.php?viewpage=3&rem=remove&id=' . $log->id . '"/><img src="' . $OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a>';
+            $row[] = '<a  title="Edit" href="' . $CFG->wwwroot . '/blocks/sms/view.php?viewpage=3&edit=edit&id=' . $log->id . '"/>
+            <img src="' . $OUTPUT->pix_url('t/edit') . '" class="iconsmall" /></a> ';
+            $row[] = '<a  title="Remove" href="' . $CFG->wwwroot . '/blocks/sms/view.php?viewpage=3&rem=remove&id=' . $log->id .'"/>
+            <img src="' . $OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a>';
             $table->data[] = $row;
         }
         return $table;

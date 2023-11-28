@@ -18,21 +18,23 @@
  * SMS notifier is a one way SMS messaging block that allows managers, teachers and administrators to
  * send text messages to their student and teacher.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 06-Jun-2013
+ * @author: Waqas Ansari
+ * @date: 21-May-2019
 */
-
+/**
+ * @copyright 2019 3iLogic <info@3ilogic.com>
+ */
 
 require_once('../../config.php');
 require_once("lib.php");
-
+require_login();
 // Message ID.
-$m_id = required_param('m_id', PARAM_INT);
+$mid = required_param('m_id', PARAM_INT);
 global $DB;
-if($m_id!=0) {
-$result = $DB->get_record_sql('SELECT template  FROM {block_sms_template} where id=?', array($m_id)); }
-else {
-    $result=new stdClass();
+if ($mid != 0) {
+    $result = $DB->get_record_sql('SELECT template  FROM {block_sms_template} where id=?', array($mid));
+} else {
+    $result = new stdClass();
     $result->template = '-';
 }
 echo $result->template;

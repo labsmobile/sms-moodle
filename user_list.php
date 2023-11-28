@@ -18,20 +18,24 @@
  * SMS notifier is a one way SMS messaging block that allows managers, teachers and administrators to
  * send text messages to their student and teacher.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 06-Jun-2013
+ * @author: Waqas Ansari
+ * @date: 21-May-2019
 */
+/**
+ * @copyright 2019 3iLogic <info@3ilogic.com>
+ */
+require_once("../../config.php");
 
 $msg = addslashes((String)$_REQUEST['msg']);
 $msg = urlencode($msg);
-require_once('../../config.php');
-require_once('sms_form.php');
+require_login();
+
+require_once("sms_form.php");
 require_once("lib.php");
 
-$c_id = required_param('c_id', PARAM_INT);
-$r_id = required_param('r_id', PARAM_INT);
+$cid = required_param('c_id', PARAM_INT);
+$rid = required_param('r_id', PARAM_INT);
 $form = new sms_send();
-$table= $form->display_report($c_id,$r_id);
-$a= html_writer::table($table);
+$table = $form->display_report($cid, $rid);
+$a = html_writer::table($table);
 echo $a."<input type='hidden' value=\"$msg\" name='msg' />";
-?>

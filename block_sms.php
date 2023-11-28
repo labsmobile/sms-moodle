@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,14 +13,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /* SMS Notifier Block
  * SMS notifier is a one way SMS messaging block that allows managers, teachers and administrators to
  * send text messages to their student and teacher.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 17-Jul-2014
+ * @author: Waqas Ansari
+ * @date: 21-May-2019
  */
+/**
+ * @copyright 2019 3iLogic <info@3ilogic.com>
+ */
+
+defined('MOODLE_INTERNAL') || die;
 
 class block_sms extends block_base {
 
@@ -31,26 +34,27 @@ class block_sms extends block_base {
 
     public function get_content() {
         global $CFG, $USER, $COURSE;
-		if ($this->content !== null) {
+        if ($this->content !== null) {
             return $this->content;
         }
         $this->content = new stdClass;
-		$this->content->text = '';
-        $this->content->text .= html_writer::link(new moodle_url('/blocks/sms/view.php', array('viewpage' => '2')), get_string('sms_send', 'block_sms')) . '<br>';
-        $this->content->text .= html_writer::link(new moodle_url('/blocks/sms/view.php', array('viewpage' => '3')), get_string('sms_template', 'block_sms')) . '<br>';
+        $this->content->text = '';
+        $this->content->text .= html_writer::link(new moodle_url('/blocks/sms/view.php',
+                                                                array('viewpage' => '2')),
+                                    get_string('sms_send', 'block_sms')) . '<br>';
+        $this->content->text .= html_writer::link(new moodle_url('/blocks/sms/view.php',
+                                                                array('viewpage' => '3')),
+                                    get_string('sms_template', 'block_sms')) . '<br>';
         return $this->content;
     }
 
     public function has_config() {
         return true;
     }
-
     public function applicable_formats() {
         return array('all' => true);
     }
-
     public function instance_allow_config() {
         return true;
     }
-
 }

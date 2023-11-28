@@ -18,9 +18,12 @@
  * SMS notifier is a one way SMS messaging block that allows managers, teachers and administrators to
  * send text messages to their student and teacher.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 06-Jun-2013
+ * @author: Waqas Ansari
+ * @date: 21-May-2019
 */
+/**
+ * @copyright 2019 3iLogic <info@3ilogic.com>
+ */
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -31,25 +34,19 @@ $capabilities = array(
         'archetypes' => array(
             'user' => CAP_ALLOW
         ),
- 
-        'clonepermissionsfrom' => 'moodle/my:manageblocks'
+         'clonepermissionsfrom' => 'moodle/my:manageblocks'
     ),
- 
-    'block/sms:addinstance' => array(
+     'block/sms:addinstance' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
- 
-        'captype' => 'write',
+         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
             ),
- 
-        'clonepermissionsfrom' => 'moodle/site:manageblocks'
+         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
-
     'block/sms:viewpages' => array(
-
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
         'legacy' => array(
@@ -59,12 +56,9 @@ $capabilities = array(
             'editingteacher' => CAP_PREVENT,
             'manager' => CAP_ALLOW,
             'coursecreator' => CAP_PREVENT
-            
         )
     ),
-
     'block/sms:managepages' => array(
-
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
         'legacy' => array(
