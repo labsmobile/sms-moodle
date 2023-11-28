@@ -26,23 +26,24 @@ Labsmobile API documentation can be found[here][apidocs].
 
 ## Installation
 
-1. Download the Plugin corresponding to the version of your Moodle installation at the bottom of this page.
+- Download the Plugin corresponding to the version of your Moodle installation at the bottom of this page.
 
-2. Sign in into your Moodle installation with a user with Administrator privileges.
+- Sign in into your Moodle installation with a user with Administrator privileges.
 
-3. Activate block mode.
+- Activate block mode.
 
-4. Install the Plugin with the downloaded .ZIP file following the instructions and configuring the plugin type as Blocks.
+- Install the Plugin with the downloaded .ZIP file following the instructions and configuring the plugin type as Blocks.
 
-5. At the end of the installation, the plugin configuration screen will be displayed. It is necessary to enter the following information:
-**v2.X - v3.6**
+- At the end of the installation, the plugin configuration screen will be displayed. It is necessary to enter the following information:
+
+*v2.X - v3.6*
   - apikey: Unused field. You can leave it blank or enter any value.
   - username: Email that corresponds to the account's registration username.
   - password: API token generated from the Security and passwords option of the LabsMobile account.
 
-6. Go to the Home screen or the desired section of Moodle to add the SMS Notifier block.
+- Go to the Home screen or the desired section of Moodle to add the SMS Notifier block.
 
-7. Two links will appear Send SMS and Create a message template.
+- Two links will appear Send SMS and Create a message template.
 
 ## Help
 
