@@ -4,7 +4,7 @@
 
 # LabsMobile-Moodle
 
-![](https://img.shields.io/badge/version-1.0.1-blue.svg)
+![](https://img.shields.io/badge/version-1.0.2-blue.svg)
  
 Send SMS messages through the LabsMobile platform and the plugin for Moodle. Sign up to install the plugin, and in seconds you will be able to send SMS messages.
 
@@ -19,7 +19,7 @@ Labsmobile API documentation can be found[here][apidocs].
 
 ## Requirements
 
-- Moodle v3.7 y v3.10. More information at [Moodle.org][moodle].
+- Moodle v4.0 y v4.1. More information at [Moodle.org][moodle].
 - LabsMobile module for Moodle.
 - A user account with LabsMobile. Click on the link to create an account [here][signUp].
 
@@ -35,7 +35,7 @@ Labsmobile API documentation can be found[here][apidocs].
 - Install the Plugin with the downloaded .ZIP file following the instructions and configuring the plugin type as Blocks.
 
 - At the end of the installation, the plugin configuration screen will be displayed. It is necessary to enter the following information:
-  *v3.7 - v3.10*
+  *v4.0 y v4.1*
   - username: Email that corresponds to the account's registration username.
   - password: API token generated from the Security and passwords option of the LabsMobile account.
   - sender: Numeric or alphanumeric sender of up to 11 characters (only in countries that allow this functionality).
