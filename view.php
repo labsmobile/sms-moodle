@@ -148,8 +148,10 @@ if ($viewpage == 1) {
         $table->align = array('center', 'left', 'center', 'center');
         $table->width = '100%';
 
+
         require_once('classes/sms_notifier.php');
         $gateway = new SMSNotifier($CFG->block_sms_api);
+
         $table->data = $gateway->process_sms($user, $msg);
         echo html_writer::table($table);
 
@@ -176,7 +178,16 @@ if ($viewpage == 1) {
     $form->set_data($toform);
     $form->display();
     $table = $form->display_report();
-    echo html_writer::table($table);
+    if (empty($table->data)) {
+      $table->data[] = array(
+          '—',
+          '—', 
+          '—',
+          '—',
+          '—' 
+      );
+  }
+  echo html_writer::table($table);
 }
 
 if ($fromform = $form->get_data()) {

@@ -29,6 +29,8 @@ class LabsmobileAPI {
     private $username;
     private $password;
     private $sender;
+    private $test;
+
 
     public function __construct() {
         global $CFG;
@@ -36,6 +38,7 @@ class LabsmobileAPI {
         $this->username = $CFG->block_sms_labsmobile_username;
         $this->password = $CFG->block_sms_labsmobile_password;
         $this->sender = $CFG->block_sms_labsmobile_sender;
+        //$this->test = 1;
     }
 
     public function send_sms($to, $text) {
@@ -57,6 +60,7 @@ class LabsmobileAPI {
         $params = "username=" . $this->username . 
           "&password=" . $this->password . 
           "&sender=" . $this->sender . 
+          //"&test=" . $this->test .
           "&msisdn={$to}" .
           "&message=" . $text;
         curl_setopt($ch, CURLOPT_URL, $this->uri . "?" . $params);

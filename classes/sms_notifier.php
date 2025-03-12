@@ -85,12 +85,38 @@ class SMSNotifier {
         $counter = 0;
         foreach ($usersdetail as $detail) {
             if (!empty($detail->phone)) {
-                $status = $this->instance->send_sms($detail->phone, $text);
-                if ($status === true) {
-                    $status = "<img src=" . $CFG->wwwroot . '/blocks/sms/pic/success.png' . "></img>";
-                } else {
-                    $status = "<img src=" . $CFG->wwwroot . '/blocks/sms/pic/error.png' . "></img>";
-                }
+
+              $replacements = [
+                '%VAR_DEPARTMENT%'   => $detail->department,
+                '%VAR_FIRSTNAME%'    => $detail->firstname,
+                '%VAR_ADDRESS%'      => $detail->address,
+                '%VAR_LASTNAME%'     => $detail->lastname,
+                '%VAR_EMAIL%'        => $detail->email,
+                '%VAR_USERNAME%'     => $detail->username,
+                '%VAR_INSTITUTION%'  => $detail->institution,
+                '%VAR_CITY%'         => $detail->city,
+                '%VAR_COURSE%'       => $detail->course,
+              ];
+            
+              $personalized_text = $text; // Texto original
+              foreach ($replacements as $key => $value) {
+                  // Reemplazar los espacios por '+'
+                  $value = str_replace(' ', '+', $value);
+                  // Reemplazar tanto las variables como la versión codificada de ellas
+                  $personalized_text = str_replace([$key, rawurlencode($key)], $value, $personalized_text);
+              }
+
+              $personalized_text = str_replace('%5C%5Cn', '%0A', $personalized_text);
+              $status = $this->instance->send_sms($detail->phone, $personalized_text);
+
+              
+              //$status = $this->instance->send_sms($detail->phone, $text);
+
+              if ($status === true) {
+                  $status = "<img src=" . $CFG->wwwroot . '/blocks/sms/pic/success.png' . "></img>";
+              } else {
+                  $status = "<img src=" . $CFG->wwwroot . '/blocks/sms/pic/error.png' . "></img>";
+              }
             } else {
                 $status = "<img src=" . $CFG->wwwroot . '/blocks/sms/pic/error.png' . "></img>";
             }
@@ -108,8 +134,25 @@ class SMSNotifier {
 
     private function get_users_detail($users) {
         global $DB;
-        $sql = 'SELECT usr.id, usr.firstname, usr.lastname, usr.email, usr.phone2 AS phone
+        $sql2 = 'SELECT usr.id, usr.firstname, usr.lastname, usr.email, usr.username, usr.institution, usr.department, usr.address, usr.city, usr.phone2 AS phone
                 FROM mdl_user AS usr
+                WHERE usr.id IN ('.implode(",", $users).')';
+        $sql = 'SELECT 
+                  usr.id, 
+                  usr.firstname, 
+                  usr.lastname, 
+                  usr.email, 
+                  usr.username, 
+                  usr.institution, 
+                  usr.department, 
+                  usr.address, 
+                  usr.city, 
+                  usr.phone2 AS phone,
+                  c.fullname AS course
+                FROM mdl_user AS usr
+                LEFT JOIN mdl_user_enrolments AS ue ON usr.id = ue.userid
+                LEFT JOIN mdl_enrol AS e ON ue.enrolid = e.id
+                LEFT JOIN mdl_course AS c ON e.courseid = c.id
                 WHERE usr.id IN ('.implode(",", $users).')';
         $usersdetail = $DB->get_records_sql($sql);
         return $usersdetail;

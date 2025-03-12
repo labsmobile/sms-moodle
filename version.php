@@ -28,5 +28,5 @@ defined('MOODLE_INTERNAL') || die;
 $plugin->version = 2019052200;
 $plugin->requires = 2019052000;
 $plugin->component = 'block_sms';
-$plugin->release = '3.7';
+$plugin->release = '4.1';
 $plugin->maturity = MATURITY_STABLE;
