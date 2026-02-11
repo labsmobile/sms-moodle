@@ -18,11 +18,11 @@
  * SMS notifier is a one way SMS messaging block that allows managers, teachers and administrators to
  * send text messages to their student and teacher.
  * @package blocks
- * @author: Waqas Ansari
+ * @author: Waqas Ansari, LabsMobile (https://www.labsmobile.com)
  * @date: 21-May-2019
 */
 /**
- * @copyright 2019 3iLogic <info@3ilogic.com>
+ * @copyright 2024 LabsMobile <info@labsmobile.com>, 2019 3iLogic <info@3ilogic.com>
  */
 defined('MOODLE_INTERNAL') || die;
 require_once("{$CFG->libdir}/formslib.php");
@@ -46,6 +46,7 @@ class sms_form extends moodleform {
     public function display_report() {
         global $DB, $OUTPUT, $CFG, $USER;
         $table = new html_table();
+        $table->attributes = array("class" => "display table table-striped table-hover generaltable table-bordered");
         $table->head = array(get_string('serial_no', 'block_sms'),
                             get_string('name', 'block_sms'),
                             get_string('cell_no', 'block_sms'),
@@ -80,7 +81,7 @@ class sms_form extends moodleform {
 class sms_send extends moodleform {
 
     public function definition() {
-        global $DB, $CFG;
+        global $DB, $CFG, $OUTPUT;
         $mform = &$this->_form;
 
         $mform->addElement('header', 'sms_send', get_string('sms_send', 'block_sms'));
@@ -115,7 +116,9 @@ class sms_send extends moodleform {
         $mform->addRule('sms_body', 'Please write Message', 'required', 'client');
         $mform->addRule('sms_body', $errors = null, 'required', null, 'server');
         $mform->setType('sms_body', PARAM_TEXT);
-        $mform->addElement('html', '<img src="Loading.gif" id="load" style="margin-left:6cm;" />');
+        $mform->addElement('html', '<div id="load" style="display:none; text-align:center; padding: 20px;">' . 
+            $OUTPUT->pix_icon('i/loading', get_string('loading', 'admin'), 'moodle', array('class' => 'icon-size-4')) . 
+            '<div class="mt-2 text-muted">' . get_string('loading', 'admin') . '</div></div>');
         $mform->addElement('hidden', 'viewpage', '2');
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
@@ -126,13 +129,14 @@ class sms_send extends moodleform {
     public function display_report($cid = null, $rid = null) {
         global $DB, $OUTPUT, $CFG, $USER;
         $table = new html_table();
-        $table->attributes = array("id" => "userlist", "class" => "display", "name" => "userlist");
+        $table->attributes = array("id" => "userlist", "class" => "display table table-striped table-hover generaltable table-bordered", "name" => "userlist");
         $table->width = '100%';
         $table->data = array();
         if (empty($cid)) {
             $cid = 1;
             $rid = 3;
         }
+
         $sql = "SELECT usr.id, CONCAT(usr.firstname,' ', usr.lastname ) AS name, usr.email,usr.phone2,c.fullname
             FROM {course} c
             INNER JOIN {context} cx ON c.id = cx.instanceid
@@ -141,31 +145,35 @@ class sms_send extends moodleform {
             INNER JOIN {role} r ON ra.roleid = r.id
             INNER JOIN {user} usr ON ra.userid = usr.id
             WHERE r.id = $rid";
-        $count = $DB->record_exists_sql($sql, array($params = null));
-        if ($count >= 1) {
-            $table->head = array(get_string('serial_no', 'block_sms'),
-                get_string('name', 'block_sms'), get_string('cell_no', 'block_sms'),
-                "<a href='javascript:setCheckboxes();' style='color:#333;' class='chkmenu'>Select all| Unselect all</a>");
-            $table->size = array('10%', '20%', '20%', '20%');
-            $table->align = array('center', 'left', 'center', 'center');
-            $rs = $DB->get_recordset_sql($sql, array(), null, null);
+        
+        $table->head = array(get_string('serial_no', 'block_sms'),
+            get_string('name', 'block_sms'), get_string('cell_no', 'block_sms'),
+            "<a href='javascript:setCheckboxes();' class='chkmenu'>Select all | Unselect all</a>");
+        $table->size = array('10%', '20%', '20%', '20%');
+        $table->align = array('center', 'left', 'center', 'center');
+
+        if ($DB->record_exists_sql($sql)) {
+            $rs = $DB->get_recordset_sql($sql);
             $i = 0;
             foreach ($rs as $log) {
                 $row = array();
                 $row[] = ++$i;
                 $row[] = $log->name;
                 $row[] = $log->phone2;
-                $row[] = "<input style='width:20px; height:30px;' type='checkbox' class='check_list' name='user[]'
-value='$log->id'/>";
+                $row[] = "<input type='checkbox' class='check_list' name='user[]' value='$log->id'/>";
                 $table->data[] = $row;
             }
-
+            $rs->close();
         } else {
+            // Remove 'display' class so DataTables doesn't try to initialize on an empty-ish table
+            $table->attributes['class'] = 'table table-bordered';
             $row = array();
-            $row[] = "<div id='load-users' style='border: 1px solid;margin: 10px 0px; padding:15px 10px 15px 50px;
-            background-repeat: no-repeat;background-position: 10px center;color: #00529B;
-            background-image: url(" . 'pic/info.png' . "); background-color: #BDE5F8;
-            border-color: #3b8eb5;'>Record not Found</div>";
+            $row[] = new html_table_cell("
+                <div id='load-users' style='border: 1px solid;margin: 10px 0px; padding:15px 10px 15px 50px;
+                background-repeat: no-repeat;background-position: 10px center;color: #00529B;
+                background-image: url(" . $CFG->wwwroot . "/blocks/sms/pic/info.png); background-color: #BDE5F8;
+                border-color: #3b8eb5;'>Record not Found</div>");
+            $row[0]->colspan = 4;
             $table->data[] = $row;
         }
         return $table;
@@ -186,10 +194,10 @@ class template_form extends moodleform {
             array('rows' => '6', 'cols' => '47', 'maxlength' => '160', 'id' => 'asd123'));
         $mform->addRule('template', 'Please Insert Template Message', 'required', 'client');
         $mform->setType('template', PARAM_TEXT);
-        $mform->addElement('hidden', 'viewpage', '2');
+        $mform->addElement('hidden', 'viewpage', '3');
         $mform->setType('viewpage', PARAM_INT);
-        $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_INT);
+        $mform->addElement('hidden', 'template_id', null, array('id' => 'id_template_id'));
+        $mform->setType('template_id', PARAM_INT);
         $this->add_action_buttons();
     }
 
@@ -209,32 +217,71 @@ class template_form extends moodleform {
     }
 
     public function display_report() {
-        global $DB, $OUTPUT, $CFG, $USER;
-        $table = new html_table();
-        $table->head = array(get_string('serial_no', 'block_sms'),
-            get_string('name', 'block_sms'), get_string('msg_body', 'block_sms'),
-            get_string('edit', 'block_sms'), get_string('delete', 'block_sms'));
-        $table->size = array('10%', '20%', '50%', '10%', '10%');
-        $table->align = array('center', 'left', 'left', 'center', 'center');
-        $table->attributes = array("class" => "display");
-        $table->width = '100%';
-        $table->data = array();
-        $sql = "SELECT * FROM {block_sms_template}";
-        $rs = $DB->get_recordset_sql($sql, array(), null, null);
+      global $DB, $OUTPUT, $CFG;
+      
+      $table = new html_table();
+      $table->head = array(
+          get_string('serial_no', 'block_sms'),
+          get_string('name', 'block_sms'),
+          get_string('msg_body', 'block_sms'),
+          get_string('edit', 'block_sms'),
+          get_string('delete', 'block_sms')
+      );
+      $table->size = array('10%', '20%', '50%', '10%', '10%');
+      $table->align = array('center', 'left', 'left', 'center', 'center');
+      $table->attributes = array("class" => "display table table-striped table-hover generaltable table-bordered");
+      $table->width = '100%';
+      $table->data = array();
+    
+      $newurl = new moodle_url('/blocks/sms/view.php', array('viewpage' => 3, 'action' => 'new'));
+      echo html_writer::div(
+          html_writer::link('#', '<i class="fa fa-plus"></i> ' . get_string('newtemplate', 'block_sms'), 
+          array('class' => 'btn btn-primary mb-3', 'id' => 'btn-new-template', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#templateModal')),
+          'd-flex justify-content-end'
+      );
 
-        $i = 0;
-        foreach ($rs as $log) {
-            $row = array();
-            $row[] = ++$i;
-            $row[] = $log->tname;
-            $row[] = $log->template;
-            $row[] = '<a  title="Edit" href="' . $CFG->wwwroot . '/blocks/sms/view.php?viewpage=3&edit=edit&id=' . $log->id . '"/>
-            <img src="' . $OUTPUT->pix_url('t/edit') . '" class="iconsmall" /></a> ';
-            $row[] = '<a  title="Remove" href="' . $CFG->wwwroot . '/blocks/sms/view.php?viewpage=3&rem=remove&id=' . $log->id .'"/>
-            <img src="' . $OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a>';
-            $table->data[] = $row;
-        }
-        return $table;
-    }
+      $sql = "SELECT * FROM {block_sms_template}";
+      $rs = $DB->get_recordset_sql($sql);
+    
+      $i = 0;
+      foreach ($rs as $log) {
+          $row = array();
+          $row[] = ++$i;
+          $row[] = format_string($log->tname);
+          $row[] = format_text($log->template, FORMAT_HTML);
+          // Edit icon
+          $row[] = html_writer::link(
+              '#',
+              $OUTPUT->pix_icon('t/edit', get_string('edit')),
+              array(
+                  'class' => 'edit-template-link',
+                  'data-id' => $log->id,
+                  'data-name' => format_string($log->tname),
+                  'data-template' => $log->template,
+                  'data-bs-toggle' => 'modal',
+                  'data-bs-target' => '#templateModal'
+              )
+          );
+        
+          // Delete icon
+          $row[] = html_writer::link(
+              '#',
+              $OUTPUT->pix_icon('t/delete', get_string('delete')),
+              array(
+                  'class' => 'delete-template-link',
+                  'data-id' => $log->id,
+                  'data-name' => format_string($log->tname),
+                  'data-bs-toggle' => 'modal',
+                  'data-bs-target' => '#deleteConfirmModal'
+              )
+          );
+        
+          $table->data[] = $row;
+      }
+      $rs->close();
+    
+      return $table;
+  }
+
 
 }

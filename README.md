@@ -20,7 +20,7 @@ Labsmobile API documentation can be found[here][apidocs].
 
 ## Requirements
 
-- Moodle v4.0 and v4.3.2. More information at [Moodle.org][moodle].
+- Moodle v5.1 or higher information at [Moodle.org][moodle].
 - LabsMobile module for Moodle.
 - A user account with LabsMobile. Click on the link to create an account [here][signUp].
 
@@ -31,14 +31,14 @@ Labsmobile API documentation can be found[here][apidocs].
 - Activate block mode.
 - Install the Plugin with the downloaded .ZIP file following the instructions and configuring the plugin type as Blocks.
 - At the end of the installation, the plugin configuration screen will be displayed. It is necessary to enter the following information:
-  *v4.0 and *v4.3.2**
+  *v5.1 or higher*
 
   - username: Email that corresponds to the account's registration username.
   - password: API token generated from the Security and passwords option of the LabsMobile account.
   - sender: Numeric or alphanumeric sender of up to 11 characters (only in countries that allow this functionality).
 - Go to the Home screen or the desired section of Moodle to add the SMS Notifier block.
 - Two links will appear Send SMS and Create a message template.
-- When creating a template in version  *v4.1 or v4.3.2* , you can add the following  variables to personalize the message :
+- When creating a template in version  *v5.1 or higher* , you can add the following  variables to personalize the message :
 
   * `%VAR_COURSE%`
   * `%VAR_DEPARTMENT%`

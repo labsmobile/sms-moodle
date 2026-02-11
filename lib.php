@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/* SMS Notifier Block
+/* SMS Notifier LabsMobile Block
  * SMS notifier is a one way SMS messaging block that allows managers, teachers and administrators to
  * send text messages to their student and teacher.
  * @package blocks
- * @author: Waqas Ansari
+ * @author: Waqas Ansari, LabsMobile (https://www.labsmobile.com)
  * @date: 21-May-2019
  */
 /**
- * @copyright 2019 3iLogic <info@3ilogic.com>
+ * @copyright 2024 LabsMobile <info@labsmobile.com>, 2019 3iLogic <info@3ilogic.com>
  */
 
 require_once(dirname(__FILE__) . '/../../config.php');

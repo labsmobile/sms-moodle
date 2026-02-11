@@ -14,108 +14,136 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/* SMS Notifier Block
+/* SMS Notifier LabsMobile Block
  * SMS notifier is a one way SMS messaging block that allows managers, teachers and administrators to
  * send text messages to their student and teacher.
  * @package blocks
- * @author: Waqas Ansari
+ * @author: Waqas Ansari, LabsMobile (https://www.labsmobile.com)
  * @date: 21-May-2019
 */
 /**
- * @copyright 2019 3iLogic <info@3ilogic.com>
+ * @copyright 2024 LabsMobile <info@labsmobile.com>, 2019 3iLogic <info@3ilogic.com>
  */
 defined('MOODLE_INTERNAL') || die;
 if ($ADMIN->fulltree) {
 
-    /* ========================= nexmo ======================= */
-
-    $settings->add(new admin_setting_configtext("block_sms_nexmo_apikey",
-        get_string('sms_api_key', 'block_sms'),
-        get_string('sms_api_key', 'block_sms'),
-        '', PARAM_TEXT));
-    $settings->add(new admin_setting_configtext("block_sms_nexmo_api_secret",
-        get_string('sms_api_secret', 'block_sms'),
-        get_string('sms_api_secret', 'block_sms'),
-        '', PARAM_TEXT));
-    $settings->add(new admin_setting_configtext("block_sms_nexmo_api_from",
-        get_string('sms_api_from', 'block_sms'),
-        get_string('sms_api_from', 'block_sms'),
-        '', PARAM_TEXT));
     /* ========================= LabsMobile ======================= */
 
-    $settings->add(new admin_setting_configtext("block_sms_labsmobile_username",
+    // Definimos una clase temporal para inyectar HTML puro sin que Moodle lo escape.
+    if (!class_exists('admin_setting_labsmobile_html')) {
+        class admin_setting_labsmobile_html extends admin_setting {
+            public $html;
+            public function __construct($name, $html) {
+                parent::__construct($name, '', '', '');
+                $this->html = $html;
+            }
+            public function get_setting() { return true; }
+            public function write_setting($data) { return true; }
+            public function output_html($data, $query = '') {
+                return $this->html;
+            }
+        }
+    }
+
+    $logo_url = $OUTPUT->image_url('icon', 'block_sms');
+    $premium_html = '
+    <div class="labsmobile-premium-container">
+        <div class="labsmobile-header-flex">
+            <div class="labsmobile-welcome-text">
+                <h3>¡Bienvenido a SMS Notifier!</h3>
+                <p>Configura tu conexión con LabsMobile para empezar a enviar notificaciones.</p>
+            </div>
+            <div class="labsmobile-logo-wrapper">
+                <img src="' . $logo_url . '" class="labsmobile-logo-settings" alt="LabsMobile Logo">
+            </div>
+        </div>
+    </div>';
+    
+    // Inyectamos el HTML usando nuestra clase personalizada.
+    $settings->add(new admin_setting_labsmobile_html('labsmobile_premium_header', $premium_html));
+
+    $settings->add(new admin_setting_configtext("labsmobile_username",
         get_string('sms_api_key', 'block_sms'),
-        get_string('sms_api_key', 'block_sms'),
+        'Email de tu cuenta LabsMobile.',
         '', PARAM_TEXT));
-    $settings->add(new admin_setting_configtext("block_sms_labsmobile_password",
+    $settings->add(new admin_setting_configpasswordunmask("labsmobile_password",
         get_string('sms_api_secret', 'block_sms'),
-        get_string('sms_api_secret', 'block_sms'),
-        '', PARAM_TEXT));
-      $settings->add(new admin_setting_configtext("block_sms_labsmobile_sender",
+        'Tu API Token secreto obtenido en el panel de LabsMobile.',
+        ''));
+    $settings->add(new admin_setting_configtext("labsmobile_sender",
         get_string('sms_api_from', 'block_sms'),
-        get_string('sms_api_from', 'block_sms'),
+        'Remitente numérico o alfanumérico de hasta 11 caracteres',
         '', PARAM_TEXT));
 
-    /* ========================= clickatell =========================*/
-    $settings->add(new admin_setting_configtext("block_sms_clickatell_apikey",
-        get_string('sms_api_key', 'block_sms'),
-        get_string('sms_api_key', 'block_sms'),
-        '', PARAM_TEXT));
-
-    /* ============================== twilio  ====================*/
-    $settings->add(new admin_setting_configtext("block_sms_twilio_accountsid",
-        get_string('sms_twilio_accountsid', 'block_sms'),
-        get_string('sms_twilio_accountsid', 'block_sms'),
-        '', PARAM_TEXT));
-    $settings->add(new admin_setting_configtext("block_sms_twilio_auth_token",
-        get_string('sms_twilio_auth_token', 'block_sms'),
-        get_string('sms_twilio_auth_token', 'block_sms'),
-        '', PARAM_TEXT));
-    $settings->add(new admin_setting_configtext("block_sms_twilio_api_from",
-        get_string('sms_api_from', 'block_sms'),
-        get_string('sms_api_from', 'block_sms'),
-        '', PARAM_TEXT));
-
-    $settings->add(new admin_setting_configselect('block_sms_api', 'SMS API Name', 'Select Api which you are using', 'Clickatell',
-        array("clickatell" => "Clickatell", "nexmo" => 'Nexmo SMS', "labsmobile" => 'LabsMobile SMS', "twilio" => 'Twilio SMS')));
-
-    echo '
-    <script type="text/javascript" src="//code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script type="text/javascript">
-        $(() => {
-            let vendors = {"clickatell": ["apikey"],
-                            "nexmo": ["apikey", "api_secret", "api_from"],
-                            "labsmobile": ["username", "api_token", "sender"],
-                            "twilio": ["accountsid", "auth_token", "api_from"]
-                            /*"sendpk": ["username", "password", "from_no"]*/};
-            const selectedVendor = $("#id_s__block_sms_api option:selected").val();
-            Object.keys(vendors).forEach((vendorName) => {
-                if(vendorName === selectedVendor) {
-                    vendors[vendorName].forEach(param => {
-                       $("#admin-block_sms_"+vendorName+"_"+param).show();
-                    });
-                } else {
-                    vendors[vendorName].forEach(param => {
-                       $("#admin-block_sms_"+vendorName+"_"+param).hide();
-                    });
-                }
-            });
-            $("#id_s__block_sms_api").on("change", e => {
-               const selectedVendor = $("#id_s__block_sms_api option:selected").val();
-                Object.keys(vendors).forEach((vendorName) => {
-                    if(vendorName === selectedVendor) {
-                        vendors[vendorName].forEach(param => {
-                           $("#admin-block_sms_"+vendorName+"_"+param).show();
-                        });
-                    }
-                    else {
-                        vendors[vendorName].forEach(param => {
-                           $("#admin-block_sms_"+vendorName+"_"+param).hide();
-                        });
-                    }
-                });
-            });
-        });
-    </script>
-    ';
+    // Optimized CSS for a Premium look.
+    echo '<style>
+        .labsmobile-premium-container {
+            background: #f8fbfc;
+            border-left: 5px solid #2ab3b5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .labsmobile-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .labsmobile-welcome-text h3 {
+            color: #3c3c3b;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .labsmobile-welcome-text p {
+            color: #666;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        .labsmobile-welcome-text a {
+            color: #2ab3b5;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .labsmobile-logo-wrapper {
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+        .labsmobile-logo-settings {
+            width: 90px;
+            height: auto;
+            border-radius: 6px;
+            display: block;
+        }
+        /* Resaltar campos de LabsMobile */
+        #admin-labsmobile_username, #admin-labsmobile_password, #admin-labsmobile_sender {
+            border-bottom: 1px dashed #eee;
+            padding: 10px 0;
+            margin-bottom: 10px;
+        }
+        /* Espacio extra para que el botón "Save changes" no choque con la línea */
+        #admin-labsmobile_sender {
+            margin-bottom: 15px !important;
+        }
+        .form-description {
+            color: #2ab3b5 !important;
+            font-style: italic;
+            font-size: 0.85rem !important;
+        }
+        @media (max-width: 768px) {
+            .labsmobile-logo-settings {
+                position: static;
+                float: none;
+                display: block;
+                margin: 10px auto;
+            }
+        }
+        #admin-labsmobile_username .form-shortname,
+        #admin-labsmobile_password .form-shortname,
+        #admin-labsmobile_sender .form-shortname {
+            display: none !important;
+        }
+    </style>';
 }

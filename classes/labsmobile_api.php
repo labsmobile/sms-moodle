@@ -35,9 +35,9 @@ class LabsmobileAPI {
     public function __construct() {
         global $CFG;
         $this->uri = "https://api.labsmobile.com/get/send.php";
-        $this->username = $CFG->block_sms_labsmobile_username;
-        $this->password = $CFG->block_sms_labsmobile_password;
-        $this->sender = $CFG->block_sms_labsmobile_sender;
+        $this->username = $CFG->labsmobile_username;
+        $this->password = $CFG->labsmobile_password;
+        $this->sender = $CFG->labsmobile_sender;
         //$this->test = 1;
     }
 

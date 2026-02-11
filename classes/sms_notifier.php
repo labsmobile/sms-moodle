@@ -25,56 +25,18 @@
  */
 defined('MOODLE_INTERNAL') || die;
 
-require_once("nexmo_api.php");
 require_once("labsmobile_api.php");
-require_once("twilio_api.php");
-require_once("clickatell_api.php");
 
 class SMSNotifier {
-    private $type;
-    private $apilist = array("nexmo", "labsmobile", "twilio", "clickatell");
+    private $type = 'labsmobile';
     private $instance;
 
-    public function __construct($type = "") {
-        if (!in_array($type, $this->apilist)) {
-            return false;
-        }
-        $this->type = $type;
-        switch ($type) {
-            case "nexmo":
-                $this->instance = new NexmoAPI();
-                break;
-            case "labsmobile":
-                $this->instance = new LabsmobileAPI();
-                break;
-            case "twilio":
-                $this->instance = new TwilioAPI();
-                break;
-            case "clickatell":
-                $this->instance = new ClickatellAPI();
-                break;
-        }
+    public function __construct($type = "labsmobile") {
+        $this->instance = new LabsmobileAPI();
     }
 
-    public function get_sms_vendor($type = "") {
-        if (!in_array($type, $this->apilist)) {
-            return false;
-        }
-
-        switch ($type) {
-            case "nexmo":
-                $this->instance = new NexmoAPI();
-                break;
-            case "labsmobile":
-                $this->instance = new LabsmobileAPI();
-                break;
-            case "twilio":
-                $this->instance = new TwilioAPI();
-                break;
-            case "clickatell":
-                $this->instance = new ClickatellAPI();
-                break;
-        }
+    public function get_sms_vendor($type = "labsmobile") {
+        $this->instance = new LabsmobileAPI();
     }
 
     public function process_sms($users, $text) {

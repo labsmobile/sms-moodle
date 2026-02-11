@@ -25,8 +25,8 @@
  * @copyright 2019 3iLogic <info@3ilogic.com>
  */
 
-    $string['pluginname'] = 'SMS Notifier';
-    $string['sms'] = 'SMS Notifier';
+    $string['pluginname'] = 'SMS Notifier LabsMobile';
+    $string['sms'] = 'SMS Notifier LabsMobile';
     $string['sms_send'] = 'Send SMS';
     $string['addpage'] = 'Add Page';
     $string['textfields'] = 'Data';
@@ -46,11 +46,11 @@
     $string['sms_twilio_auth_token'] = 'Auth Token';
     $string['sms_sendpk_username'] = 'SendPK Username';
     $string['sms_sendpk_password'] = 'SendPK Password';
-    $string['sms_api_key'] = 'API Key';
-    $string['sms_api_secret'] = 'API Secret';
+    $string['sms_api_key'] = 'Username';
+    $string['sms_api_secret'] = 'Token';
     $string['sms_api_username'] = 'Username';
     $string['sms_api_password'] = 'Password';
-    $string['sms_api_from'] = 'From Number';
+    $string['sms_api_from'] = 'Sender';
     $string['sms_setting_header'] = 'SMS Notification Settings';
     $string['block_sms_apikey'] = 'block_sms_apikey';
     $string['block_sms_api_secret'] = 'block_sms_api_secret';
@@ -72,3 +72,4 @@
     $string['moodleuser'] = 'Username';
     $string['usernumber'] = 'Numbers';
     $string['status'] = 'Status';
+    $string['newtemplate'] = 'Add New Template';
