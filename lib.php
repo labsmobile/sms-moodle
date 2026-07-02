@@ -43,11 +43,10 @@ function yutobo_path($apikey, $from, $to, $text) {
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     $output = curl_exec($ch);
-    return $output;
     curl_close($ch);
+    return $output;
 }
 
 function bulk_sms($to, $message) {
