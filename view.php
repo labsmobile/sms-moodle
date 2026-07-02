@@ -148,6 +148,25 @@ echo $OUTPUT->header();
         .DTTT_button:hover {
             background: #e2e6ea !important;
         }
+
+        .modal-close-button {
+            background: transparent;
+            border: 0;
+            color: #343a40;
+            cursor: pointer;
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1;
+            opacity: 0.7;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .modal-close-button:hover,
+        .modal-close-button:focus {
+            color: #000;
+            opacity: 1;
+            text-decoration: none;
+        }
     </style>
     <script type="text/javascript" language="javascript" class="init">
         $(document).ready(function () {
@@ -237,7 +256,7 @@ if ($viewpage == 1) {
         $table->align = array('center', 'left', 'center', 'center');
         $table->width = '100%';
         require_once('classes/sms_notifier.php');
-        $gateway = new SMSNotifier($CFG->block_sms_api);
+        $gateway = new SMSNotifier();
         $table->data = $gateway->process_sms($user, $msg);
         echo html_writer::table($table);
     }
@@ -270,7 +289,7 @@ if ($viewpage == 1) {
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="templateModalLabel">' . ($edit ? "Edit Template" : "New Template") . '</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="modal-close-button" data-block-sms-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           </div>
           <div class="modal-body">
             <div id="form-container">';
@@ -288,13 +307,13 @@ if ($viewpage == 1) {
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title text-danger"><i class="fa fa-exclamation-triangle"></i> Confirm Delete</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="modal-close-button" data-block-sms-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           </div>
           <div class="modal-body">
             <p>Are you sure you want to delete the template "<span id="delete-template-name"></span>"?</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-secondary" data-block-sms-dismiss="modal">Cancel</button>
             <a href="#" id="confirm-delete-btn" class="btn btn-danger">Delete</a>
           </div>
         </div>
@@ -305,16 +324,83 @@ if ($viewpage == 1) {
     $PAGE->requires->js_amd_inline("
     require(['jquery', 'theme_boost/loader'], function($) {
         $(document).ready(function() {
+            function showModal(selector, triggerEl) {
+                var modalEl = document.querySelector(selector);
+                if (!modalEl) {
+                    return;
+                }
+
+                if (triggerEl && typeof triggerEl.focus === 'function') {
+                    modalEl.blockSmsReturnFocusTo = triggerEl;
+                }
+
+                $(modalEl).off('hidden.bs.modal.block_sms').on('hidden.bs.modal.block_sms', function() {
+                    var returnFocusTo = modalEl.blockSmsReturnFocusTo;
+                    if (returnFocusTo && document.contains(returnFocusTo) && typeof returnFocusTo.focus === 'function') {
+                        returnFocusTo.focus({preventScroll: true});
+                    }
+                });
+
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var modal = bootstrap.Modal.getOrCreateInstance ?
+                        bootstrap.Modal.getOrCreateInstance(modalEl) :
+                        new bootstrap.Modal(modalEl);
+                    modal.show();
+                } else if ($.fn.modal) {
+                    $(modalEl).modal('show');
+                }
+            }
+
+            function moveFocusOutOfModal(modalEl) {
+                var activeEl = document.activeElement;
+                if (activeEl && modalEl.contains(activeEl) && typeof activeEl.blur === 'function') {
+                    activeEl.blur();
+                }
+            }
+
+            function hideModal(selector) {
+                var modalEl = document.querySelector(selector);
+                if (!modalEl) {
+                    return;
+                }
+
+                moveFocusOutOfModal(modalEl);
+
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var modal = bootstrap.Modal.getInstance && bootstrap.Modal.getInstance(modalEl) ?
+                        bootstrap.Modal.getInstance(modalEl) :
+                        (bootstrap.Modal.getOrCreateInstance ?
+                            bootstrap.Modal.getOrCreateInstance(modalEl) :
+                            new bootstrap.Modal(modalEl));
+                    modal.hide();
+                } else if ($.fn.modal) {
+                    $(modalEl).modal('hide');
+                }
+            }
+
+            $(document).on('click', '.modal [data-block-sms-dismiss=\"modal\"]', function(e) {
+                e.preventDefault();
+                hideModal('#' + $(this).closest('.modal').attr('id'));
+            });
+
+            $(document).on('click', '#templateModal input[name=\"cancel\"], #templateModal button[name=\"cancel\"]', function(e) {
+                e.preventDefault();
+                hideModal('#templateModal');
+            });
+
             // Handle Delete Modal
             $('.delete-template-link').on('click', function(e) {
+                e.preventDefault();
                 var id = $(this).data('id');
                 var name = $(this).data('name');
                 $('#delete-template-name').text(name);
                 $('#confirm-delete-btn').attr('href', 'view.php?viewpage=3&rem=rem&delete=' + id);
+                showModal('#deleteConfirmModal', this);
             });
 
             // Handle Edit Modal (No refresh)
             $('.edit-template-link').on('click', function(e) {
+                e.preventDefault();
                 var id = $(this).data('id');
                 var name = $(this).data('name');
                 var template = $(this).data('template');
@@ -325,31 +411,22 @@ if ($viewpage == 1) {
                 $('#asd123').val(template);
                 
                 $('#templateModalLabel').text('Edit Template');
+                showModal('#templateModal', this);
             });
 
             // Trigger New Template modal and clear form
-            $('#btn-new-template').on('click', function() {
+            $('#btn-new-template').on('click', function(e) {
+                e.preventDefault();
                 $('#id_template_id').val('');
                 $('#id_tname').val('');
                 $('#asd123').val('');
                 $('#templateModalLabel').text('New Template');
+                showModal('#templateModal', this);
             });
 
             // Auto-open modal if there are validation errors (server-side check)
             if ('" . (isset($_POST['_qf__template_form']) && !$fromform ? "1" : "0") . "' == '1') {
-                require(['theme_boost/loader'], function() {
-                    var myModalEl = document.getElementById('templateModal');
-                    if (myModalEl) {
-                        try {
-                            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                                var modal = new bootstrap.Modal(myModalEl);
-                                modal.show();
-                            } else {
-                                $(myModalEl).modal('show');
-                            }
-                        } catch(e) { console.error('Modal failed', e); }
-                    }
-                });
+                showModal('#templateModal');
             }
             
             // Improve form styling for modal

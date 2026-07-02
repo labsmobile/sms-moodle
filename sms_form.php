@@ -140,11 +140,16 @@ class sms_send extends moodleform {
         $sql = "SELECT usr.id, CONCAT(usr.firstname,' ', usr.lastname ) AS name, usr.email,usr.phone2,c.fullname
             FROM {course} c
             INNER JOIN {context} cx ON c.id = cx.instanceid
-            AND cx.contextlevel = '50' and c.id=$cid
+            AND cx.contextlevel = :contextlevel AND c.id = :cid
             INNER JOIN {role_assignments} ra ON cx.id = ra.contextid
             INNER JOIN {role} r ON ra.roleid = r.id
             INNER JOIN {user} usr ON ra.userid = usr.id
-            WHERE r.id = $rid";
+            WHERE r.id = :rid";
+        $params = array(
+            'contextlevel' => CONTEXT_COURSE,
+            'cid' => $cid,
+            'rid' => $rid,
+        );
         
         $table->head = array(get_string('serial_no', 'block_sms'),
             get_string('name', 'block_sms'), get_string('cell_no', 'block_sms'),
@@ -152,8 +157,8 @@ class sms_send extends moodleform {
         $table->size = array('10%', '20%', '20%', '20%');
         $table->align = array('center', 'left', 'center', 'center');
 
-        if ($DB->record_exists_sql($sql)) {
-            $rs = $DB->get_recordset_sql($sql);
+        if ($DB->record_exists_sql($sql, $params)) {
+            $rs = $DB->get_recordset_sql($sql, $params);
             $i = 0;
             foreach ($rs as $log) {
                 $row = array();
@@ -235,8 +240,8 @@ class template_form extends moodleform {
     
       $newurl = new moodle_url('/blocks/sms/view.php', array('viewpage' => 3, 'action' => 'new'));
       echo html_writer::div(
-          html_writer::link('#', '<i class="fa fa-plus"></i> ' . get_string('newtemplate', 'block_sms'), 
-          array('class' => 'btn btn-primary mb-3', 'id' => 'btn-new-template', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#templateModal')),
+          html_writer::link('#', '<i class="fa fa-plus"></i> ' . get_string('newtemplate', 'block_sms'),
+          array('class' => 'btn btn-primary mb-3', 'id' => 'btn-new-template')),
           'd-flex justify-content-end'
       );
 
@@ -257,9 +262,7 @@ class template_form extends moodleform {
                   'class' => 'edit-template-link',
                   'data-id' => $log->id,
                   'data-name' => format_string($log->tname),
-                  'data-template' => $log->template,
-                  'data-bs-toggle' => 'modal',
-                  'data-bs-target' => '#templateModal'
+                  'data-template' => $log->template
               )
           );
         
@@ -270,9 +273,7 @@ class template_form extends moodleform {
               array(
                   'class' => 'delete-template-link',
                   'data-id' => $log->id,
-                  'data-name' => format_string($log->tname),
-                  'data-bs-toggle' => 'modal',
-                  'data-bs-target' => '#deleteConfirmModal'
+                  'data-name' => format_string($log->tname)
               )
           );
         

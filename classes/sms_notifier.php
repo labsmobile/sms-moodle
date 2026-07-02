@@ -96,9 +96,27 @@ class SMSNotifier {
 
     private function get_users_detail($users) {
         global $DB;
-        $sql2 = 'SELECT usr.id, usr.firstname, usr.lastname, usr.email, usr.username, usr.institution, usr.department, usr.address, usr.city, usr.phone2 AS phone
-                FROM mdl_user AS usr
-                WHERE usr.id IN ('.implode(",", $users).')';
+
+        if (!is_array($users) || empty($users)) {
+            return array();
+        }
+
+        $userids = array();
+        foreach ($users as $userid) {
+            if (!is_scalar($userid) || !preg_match('/^[0-9]+$/', (string) $userid)) {
+                throw new invalid_parameter_exception('Invalid user id');
+            }
+            $userid = (int) $userid;
+            if ($userid > 0) {
+                $userids[$userid] = $userid;
+            }
+        }
+
+        if (empty($userids)) {
+            return array();
+        }
+
+        list($useridsql, $params) = $DB->get_in_or_equal(array_values($userids), SQL_PARAMS_NAMED, 'userid');
         $sql = 'SELECT 
                   usr.id, 
                   usr.firstname, 
@@ -111,12 +129,12 @@ class SMSNotifier {
                   usr.city, 
                   usr.phone2 AS phone,
                   c.fullname AS course
-                FROM mdl_user AS usr
-                LEFT JOIN mdl_user_enrolments AS ue ON usr.id = ue.userid
-                LEFT JOIN mdl_enrol AS e ON ue.enrolid = e.id
-                LEFT JOIN mdl_course AS c ON e.courseid = c.id
-                WHERE usr.id IN ('.implode(",", $users).')';
-        $usersdetail = $DB->get_records_sql($sql);
+                FROM {user} AS usr
+                LEFT JOIN {user_enrolments} AS ue ON usr.id = ue.userid
+                LEFT JOIN {enrol} AS e ON ue.enrolid = e.id
+                LEFT JOIN {course} AS c ON e.courseid = c.id
+                WHERE usr.id ' . $useridsql;
+        $usersdetail = $DB->get_records_sql($sql, $params);
         return $usersdetail;
     }
 }
