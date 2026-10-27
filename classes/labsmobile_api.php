@@ -30,6 +30,7 @@ class LabsmobileAPI {
     private $password;
     private $sender;
     private $test;
+    private $log;
 
 
     public function __construct() {
@@ -39,6 +40,7 @@ class LabsmobileAPI {
         $this->password = $CFG->block_sms_labsmobile_password;
         $this->sender = $CFG->block_sms_labsmobile_sender;
         //$this->test = 1;
+        $this->log = "6";
     }
 
     public function send_sms($to, $text) {
@@ -60,6 +62,7 @@ class LabsmobileAPI {
         $params = "username=" . $this->username . 
           "&password=" . $this->password . 
           "&sender=" . $this->sender . 
+          "&log=" . $this->log .
           //"&test=" . $this->test .
           "&msisdn={$to}" .
           "&message=" . $text;
